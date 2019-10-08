@@ -13,6 +13,7 @@ type Stat struct {
 }
 
 type EndpointStatMap map[gopacket.Endpoint]Stat
+type FlowStatMap map[gopacket.Flow]Stat
 
 func (em EndpointStatMap) String() string {
     var sb strings.Builder
@@ -63,7 +64,7 @@ func Endpoints(packets []gopacket.Packet) (srcStat, dstStat EndpointStatMap) {
     return
 }
 
-func Flow(packets []gopacket.Packet) (flowStat map[gopacket.Flow]Stat) {
+func Flow(packets []gopacket.Packet) (flowStat FlowStatMap) {
     flowStat = make(map[gopacket.Flow]Stat)
 
     for _, packet := range packets {
