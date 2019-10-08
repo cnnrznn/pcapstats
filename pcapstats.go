@@ -8,28 +8,28 @@ import (
     "sort"
 )
 
-type pstat struct {
+type Stat struct {
     count int
     bytes int
 }
 
-func (p pstat) String() string {
-    return fmt.Sprintf("%v, %v", p.count, p.bytes)
+func (s Stat) String() string {
+    return fmt.Sprintf("%v, %v", s.count, s.bytes)
 }
 
-func (p pstat) incCount() pstat {
-    p.count++
-    return p
+func (s Stat) incCount() Stat {
+    s.count++
+    return s
 }
 
-func (p pstat) incBytes(b int) pstat {
-    p.bytes += b
-    return p
+func (s Stat) incBytes(b int) Stat {
+    s.bytes += b
+    return s
 }
 
 func EndStat(packets []gopacket.Packet) {
-    srcStat := make(map[gopacket.Endpoint]pstat)
-    dstStat := make(map[gopacket.Endpoint]pstat)
+    srcStat := make(map[gopacket.Endpoint]Stat)
+    dstStat := make(map[gopacket.Endpoint]Stat)
 
     for _, packet := range packets {
         if net := packet.NetworkLayer(); net != nil {
@@ -57,7 +57,7 @@ func EndStat(packets []gopacket.Packet) {
 }
 
 func FlowStat(packets []gopacket.Packet) {
-    flowStat := make(map[gopacket.Flow]pstat)
+    flowStat := make(map[gopacket.Flow]Stat)
 
     for _, packet := range packets {
         if net := packet.NetworkLayer(); net != nil {
