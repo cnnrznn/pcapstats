@@ -3,11 +3,30 @@ package pcapstats
 import (
     "fmt"
     "github.com/google/gopacket"
+    "sort"
+    "strings"
 )
 
 type Stat struct {
     count int
     bytes int
+}
+
+type EndpointStatMap map[gopacket.Endpoint]Stat
+
+func (em EndpointStatMap) String() string {
+    var sb strings.Builder
+    keys := make([]gopacket.Endpoint, 0)
+    for k := range em {
+        keys = append(keys, k)
+    }
+    sort.Slice(keys, func(i, j int) bool { return keys[i].LessThan(keys[j]) })
+
+    for _, k := range keys {
+        fmt.Fprintf(&sb, "%v, %v\n", k, em[k])
+    }
+
+    return sb.String()
 }
 
 func (s Stat) String() string {
@@ -40,17 +59,6 @@ func Endpoints(packets []gopacket.Packet) (srcStat, dstStat map[gopacket.Endpoin
             dstStat[dst] = dstStat[dst].incBytes(size)
         }
     }
-
-    //keys := make([]gopacket.Endpoint, 0)
-    //for k := range srcStat {
-    //    keys = append(keys, k)
-    //}
-    //sort.Slice(keys, func(i, j int) bool { return keys[i].LessThan(keys[j]) })
-
-    //fmt.Println("IP, srcCount, srcBytes, dstCount, dstBytes")
-    //for _, k := range keys {
-    //    fmt.Printf("%v, %v, %v\n", k, srcStat[k], dstStat[k])
-    //}
 
     return
 }
