@@ -13,6 +13,10 @@ type pstat struct {
     bytes int
 }
 
+func (p pstat) String() string {
+    return fmt.Sprintf("%v, %v", p.count, p.bytes)
+}
+
 func (p pstat) incCount() pstat {
     p.count++
     return p
@@ -47,7 +51,7 @@ func EndStat(packets []gopacket.Packet) {
     sort.Slice(keys, func(i, j int) bool { return keys[i].LessThan(keys[j]) })
 
     for _, k := range keys {
-        fmt.Println(k, srcStat[k])
+        fmt.Printf("%v, %v, %v\n", k, srcStat[k], dstStat[k])
     }
 }
 
