@@ -5,6 +5,7 @@ import (
     "github.com/google/gopacket"
     "github.com/google/gopacket/pcap"
     "os"
+    "fmt"
 )
 
 func main() {
@@ -20,7 +21,9 @@ func main() {
             packets = append(packets, packet)
         }
 
-        fmt.Println(pcapstats.Endpoints(packets))
+        srcMap, dstMap := pcapstats.Endpoints(packets)
+        fmt.Println(srcMap)
+        fmt.Println(dstMap)
     }
 }
 

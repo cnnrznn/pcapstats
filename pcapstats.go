@@ -43,7 +43,7 @@ func (s Stat) incBytes(b int) Stat {
     return s
 }
 
-func Endpoints(packets []gopacket.Packet) (srcStat, dstStat map[gopacket.Endpoint]Stat) {
+func Endpoints(packets []gopacket.Packet) (srcStat, dstStat EndpointStatMap) {
     srcStat = make(map[gopacket.Endpoint]Stat)
     dstStat = make(map[gopacket.Endpoint]Stat)
 
