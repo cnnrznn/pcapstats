@@ -1,10 +1,8 @@
-package main
+package pcapstats
 
 import (
     "fmt"
     "github.com/google/gopacket"
-    "github.com/google/gopacket/pcap"
-    "os"
     "sort"
 )
 
@@ -72,24 +70,6 @@ func FlowStat(packets []gopacket.Packet) {
             //fmt.Println(packet)
             // It's an ARP packet
         }
-    }
-}
-
-func main() {
-    args := os.Args[1:]
-    fn := args[0]
-
-    if handle, err := pcap.OpenOffline(fn); err != nil {
-        panic(err)
-    } else {
-        packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-        packets := []gopacket.Packet{}
-        for packet := range packetSource.Packets() {
-            packets = append(packets, packet)
-        }
-
-        FlowStat(packets)
-        EndStat(packets)
     }
 }
 
