@@ -50,6 +50,7 @@ func EndStat(packets []gopacket.Packet) {
     }
     sort.Slice(keys, func(i, j int) bool { return keys[i].LessThan(keys[j]) })
 
+    fmt.Println("IP, srcCount, srcBytes, dstCount, dstBytes")
     for _, k := range keys {
         fmt.Printf("%v, %v, %v\n", k, srcStat[k], dstStat[k])
     }
