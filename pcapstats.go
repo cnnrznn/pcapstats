@@ -3,7 +3,6 @@ package pcapstats
 import (
     "fmt"
     "github.com/google/gopacket"
-    "sort"
 )
 
 type Stat struct {
@@ -25,9 +24,9 @@ func (s Stat) incBytes(b int) Stat {
     return s
 }
 
-func EndStat(packets []gopacket.Packet) {
-    srcStat := make(map[gopacket.Endpoint]Stat)
-    dstStat := make(map[gopacket.Endpoint]Stat)
+func Endpoints(packets []gopacket.Packet) (srcStat, dstStat map[gopacket.Endpoint]Stat) {
+    srcStat = make(map[gopacket.Endpoint]Stat)
+    dstStat = make(map[gopacket.Endpoint]Stat)
 
     for _, packet := range packets {
         if net := packet.NetworkLayer(); net != nil {
@@ -42,20 +41,22 @@ func EndStat(packets []gopacket.Packet) {
         }
     }
 
-    keys := make([]gopacket.Endpoint, 0)
-    for k := range srcStat {
-        keys = append(keys, k)
-    }
-    sort.Slice(keys, func(i, j int) bool { return keys[i].LessThan(keys[j]) })
+    //keys := make([]gopacket.Endpoint, 0)
+    //for k := range srcStat {
+    //    keys = append(keys, k)
+    //}
+    //sort.Slice(keys, func(i, j int) bool { return keys[i].LessThan(keys[j]) })
 
-    fmt.Println("IP, srcCount, srcBytes, dstCount, dstBytes")
-    for _, k := range keys {
-        fmt.Printf("%v, %v, %v\n", k, srcStat[k], dstStat[k])
-    }
+    //fmt.Println("IP, srcCount, srcBytes, dstCount, dstBytes")
+    //for _, k := range keys {
+    //    fmt.Printf("%v, %v, %v\n", k, srcStat[k], dstStat[k])
+    //}
+
+    return
 }
 
-func FlowStat(packets []gopacket.Packet) {
-    flowStat := make(map[gopacket.Flow]Stat)
+func Flow(packets []gopacket.Packet) (flowStat map[gopacket.Flow]Stat) {
+    flowStat = make(map[gopacket.Flow]Stat)
 
     for _, packet := range packets {
         if net := packet.NetworkLayer(); net != nil {
@@ -66,10 +67,9 @@ func FlowStat(packets []gopacket.Packet) {
 
             flowStat[netFlow] = flowStat[netFlow].incCount()
             flowStat[netFlow] = flowStat[netFlow].incBytes(size)
-        } else {
-            //fmt.Println(packet)
-            // It's an ARP packet
         }
     }
+
+    return
 }
 

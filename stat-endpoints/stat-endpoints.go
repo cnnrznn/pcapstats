@@ -20,8 +20,8 @@ func main() {
             packets = append(packets, packet)
         }
 
-        pcapstats.FlowStat(packets)
-        pcapstats.EndStat(packets)
+        pcapstats.Flow(packets)
+        pcapstats.Endpoints(packets)
     }
 }
 
