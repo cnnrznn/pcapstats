@@ -22,8 +22,11 @@ func main() {
             packets = append(packets, packet)
         }
 
-        buckets := pcapstats.TimeSlice(packets, time.Duration(10) * time.Millisecond)
-        fmt.Println(buckets)
+        buckets := pcapstats.TimeSlice(packets, time.Duration(1000) * time.Millisecond)
+
+        for _, b := range buckets {
+            fmt.Println(len(b))
+        }
 
         //srcMap, dstMap := pcapstats.Endpoints(packets)
     }
