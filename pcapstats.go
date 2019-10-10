@@ -5,6 +5,7 @@ import (
     "github.com/google/gopacket"
     "sort"
     "strings"
+    "time"
 )
 
 type Stat struct {
@@ -77,6 +78,27 @@ func Flow(packets []gopacket.Packet) (flowStat FlowStatMap) {
             flowStat[netFlow] = flowStat[netFlow].incCount()
             flowStat[netFlow] = flowStat[netFlow].incBytes(size)
         }
+    }
+
+    return
+}
+
+func TimeSlice(packets []gopacket.Packet, millis time.Duration) (buckets [][]gopacket.Packet) {
+    buckets = make([][]gopacket.Packet, 0)
+    currBucket := make([]gopacket.Packet, 0)
+    buckets = append(buckets, currBucket)
+    startTime := packets[0].Metadata().CaptureInfo.Timestamp
+
+    for _, p := range packets {
+        pTime := p.Metadata().CaptureInfo.Timestamp
+
+        if pTime.Sub(startTime) > millis {
+            currBucket := make([]gopacket.Packet, 0)
+            buckets = append(buckets, currBucket)
+            startTime = pTime
+        }
+
+        currBucket = append(currBucket, p)
     }
 
     return
