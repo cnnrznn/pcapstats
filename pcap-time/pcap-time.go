@@ -20,12 +20,15 @@ func toStringSlice(s []gopacket.Endpoint) (strSlice []string) {
 }
 
 func handlePackets(packets []gopacket.Packet) {
-    buckets := pcapstats.TimeSlice(packets, time.Duration(10) * time.Millisecond)
+    bTime := 10
+    buckets := pcapstats.TimeSlice(packets, time.Duration(bTime) * time.Millisecond)
     endpoints := pcapstats.Keys(packets)
     strEndpoints := toStringSlice(endpoints)
     strTypes := []string{"Send", "Recv"}
     strValues := []string{"Count", "Bytes"}
 
+    // Print headers
+    fmt.Print("Time (ms), ")
     for i:=0; i<len(strEndpoints); i++ {
         for j:=0; j<len(strTypes); j++ {
             for k:=0; k<len(strValues); k++ {
@@ -37,8 +40,10 @@ func handlePackets(packets []gopacket.Packet) {
     }
     fmt.Println()
 
-    for _, b := range buckets {
+    // Print data
+    for i, b := range buckets {
         srcMap, dstMap := pcapstats.Endpoints(b)
+        fmt.Printf("%v, ", bTime * (i+1))
         for _, e := range endpoints {
             fmt.Printf("%v, %v, %v, %v, ",
                                    srcMap[e].Count,
