@@ -114,16 +114,17 @@ func TimeSlice(packets []gopacket.Packet, millis time.Duration) (buckets [][]gop
     currBucket := make([]gopacket.Packet, 0)
     startTime := packets[0].Metadata().CaptureInfo.Timestamp
 
-    for _, p := range packets {
-        pTime := p.Metadata().CaptureInfo.Timestamp
+    for i:=0; i<len(packets); {
+        pTime := packets[i].Metadata().CaptureInfo.Timestamp
 
         if pTime.Sub(startTime) > millis {
             buckets = append(buckets, currBucket)
             currBucket = make([]gopacket.Packet, 0)
-            startTime = pTime
+            startTime = startTime.Add(millis)
+        } else {
+            currBucket = append(currBucket, packets[i])
+            i++
         }
-
-        currBucket = append(currBucket, p)
     }
     buckets = append(buckets, currBucket)
 
