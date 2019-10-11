@@ -6,8 +6,40 @@ import (
     "github.com/google/gopacket"
     "github.com/google/gopacket/pcap"
     "os"
+    "strings"
     "time"
 )
+
+func toStringSlice(s []gopacket.Endpoint) (strSlice []string) {
+    strSlice = make([]string, len(s))
+
+    for i, v := range s {
+        strSlice[i] = v.String()
+    }
+
+    return
+}
+
+func handlePackets(packets []gopacket.Packet) {
+    buckets := pcapstats.TimeSlice(packets, time.Duration(1000) * time.Millisecond)
+    endpoints := pcapstats.Keys(packets)
+    strEndpoints := toStringSlice(endpoints)
+
+    fmt.Println(strings.Join(strEndpoints, ","))
+    fmt.Println("Count, Bytes")
+
+    for _, b := range buckets {
+        srcMap, dstMap := pcapstats.Endpoints(b)
+        for _, e := range endpoints {
+            fmt.Printf("%v, %v, %v, %v, ",
+                                   srcMap[e].Count,
+                                   srcMap[e].Bytes,
+                                   dstMap[e].Count,
+                                   dstMap[e].Bytes)
+        }
+        fmt.Println()
+    }
+}
 
 func main() {
     args := os.Args[1:]
@@ -22,13 +54,7 @@ func main() {
             packets = append(packets, packet)
         }
 
-        buckets := pcapstats.TimeSlice(packets, time.Duration(1000) * time.Millisecond)
-
-        for _, b := range buckets {
-            fmt.Println(len(b))
-        }
-
-        //srcMap, dstMap := pcapstats.Endpoints(packets)
+        handlePackets(packets)
     }
 }
 

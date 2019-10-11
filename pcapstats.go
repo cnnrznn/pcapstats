@@ -9,12 +9,14 @@ import (
 )
 
 type Stat struct {
-    count int
-    bytes int
+    Count int
+    Bytes int
 }
 
 type EndpointStatMap map[gopacket.Endpoint]Stat
 type FlowStatMap map[gopacket.Flow]Stat
+
+type EndpointMap map[gopacket.Endpoint]bool
 
 func (em EndpointStatMap) String() string {
     var sb strings.Builder
@@ -32,22 +34,46 @@ func (em EndpointStatMap) String() string {
 }
 
 func (s Stat) String() string {
-    return fmt.Sprintf("%v, %v", s.count, s.bytes)
+    return fmt.Sprintf("%v, %v", s.Count, s.Bytes)
 }
 
 func (s Stat) incCount() Stat {
-    s.count++
+    s.Count++
     return s
 }
 
 func (s Stat) incBytes(b int) Stat {
-    s.bytes += b
+    s.Bytes += b
     return s
 }
 
+func Keys(packets []gopacket.Packet) (keys []gopacket.Endpoint) {
+    keys = make([]gopacket.Endpoint, 0)
+    keyMap := make(map[gopacket.Endpoint]bool)
+
+    for _, p := range packets {
+        if net := p.NetworkLayer(); net != nil {
+            netFlow := net.NetworkFlow()
+            src, dst := netFlow.Endpoints()
+            keyMap[src] = true
+            keyMap[dst] = true
+        }
+    }
+
+    // add all keys to keys
+    for k, _ := range keyMap {
+        keys = append(keys, k)
+    }
+
+    // sort the keys slice
+    sort.Slice(keys, func(i, j int) bool { return keys[i].LessThan(keys[j]) })
+
+    return
+}
+
 func Endpoints(packets []gopacket.Packet) (srcStat, dstStat EndpointStatMap) {
-    srcStat = make(map[gopacket.Endpoint]Stat)
-    dstStat = make(map[gopacket.Endpoint]Stat)
+    srcStat = make(EndpointStatMap)
+    dstStat = make(EndpointStatMap)
 
     for _, packet := range packets {
         if net := packet.NetworkLayer(); net != nil {
@@ -66,7 +92,7 @@ func Endpoints(packets []gopacket.Packet) (srcStat, dstStat EndpointStatMap) {
 }
 
 func Flow(packets []gopacket.Packet) (flowStat FlowStatMap) {
-    flowStat = make(map[gopacket.Flow]Stat)
+    flowStat = make(FlowStatMap)
 
     for _, packet := range packets {
         if net := packet.NetworkLayer(); net != nil {
